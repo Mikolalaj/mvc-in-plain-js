@@ -1,6 +1,6 @@
-# MVC implemented in plain JavaScript
+# MVC implemented in plain TypeScript
 
-It's a simple movie list app that I created to learn the MVC pattern using only plain JavaScript.
+It's a simple movie list app that I created to learn the MVC pattern using only plain TypeScript.
 
 MVC is a pattern that implements three layers:
 1. Model: the data.
