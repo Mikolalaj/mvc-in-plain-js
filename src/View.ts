@@ -1,61 +1,5 @@
-type Movie = {
-    id: number
-    title: string
-    watched: boolean
-}
+import { Movie } from './utils'
 
-class Model {
-    movies: Movie[]
-    onMovieListChanged: (movies: Movie[]) => void
-    constructor() {
-        this.movies = JSON.parse(localStorage.getItem('movies')) || []
-    }
-
-    _commit(movies: Movie[]) {
-        this.onMovieListChanged(movies)
-        localStorage.setItem('movies', JSON.stringify(movies))
-    }
-  
-    addMovie(title: string) {
-        const newMovie = {
-            id: this.movies.length + 1,
-            title: title,
-            watched: false,
-            rating:  null
-        }
-  
-        this.movies.push(newMovie)
-
-        this._commit(this.movies)
-    }
-  
-    editMovie(id: number, title: string) {
-        this.movies = this.movies.map(movie =>
-            movie.id === id ? { ...movie, title: title } : movie,
-        )
-
-        this._commit(this.movies)
-    }
-
-    deleteMovie(id: number) {
-        this.movies = this.movies.filter(movie => movie.id !== id)
-
-        this._commit(this.movies)
-    }
-
-    toggleMovie(id: number) {
-        this.movies = this.movies.map(movie =>
-            movie.id === id ? { ...movie, watched: !movie.watched } : movie,
-        )
-
-        this._commit(this.movies)
-    }
-
-    bindMovieListChanged(callback: (movies: Movie[]) => void) {
-        this.onMovieListChanged = callback
-    }
-}
-  
 class View {
     app: Element
     title: Element
@@ -102,12 +46,12 @@ class View {
     // Send the completed value to the model
     bindEditMovie(handler: (id: number, title: string) => void) {
         this.moviesList.addEventListener('focusout', (event: any) => {
-        if (this._temporaryMovieTitle) {
-            const id = parseInt(event.target.parentElement.id)
-    
-            handler(id, this._temporaryMovieTitle)
-            this._temporaryMovieTitle = ''
-        }
+            if (this._temporaryMovieTitle) {
+                const id = parseInt(event.target.parentElement.id)
+
+                handler(id, this._temporaryMovieTitle)
+                this._temporaryMovieTitle = ''
+            }
         })
     }
 
@@ -115,7 +59,7 @@ class View {
         while (this.moviesList.firstChild) {
             this.moviesList.removeChild(this.moviesList.firstChild)
         }
-        
+
         if (movies.length === 0) {
             const p = this.createElement('p') as HTMLParagraphElement
             p.textContent = 'Add new movie to watch!'
@@ -130,12 +74,12 @@ class View {
                 const checkbox = this.createElement('input') as HTMLInputElement
                 checkbox.type = 'checkbox'
                 checkbox.checked = movie.watched
-            
+
                 // The movie item text will be in a contenteditable span
                 const span = this.createElement('span') as HTMLSpanElement
                 span.contentEditable = 'true'
                 span.classList.add('editable')
-            
+
                 // If the movie is watched, it will have a strikethrough
                 if (movie.watched) {
                     const strike = this.createElement('s') as HTMLTimeElement
@@ -150,11 +94,11 @@ class View {
                 const deleteButton = this.createElement('button', 'delete') as HTMLButtonElement
                 deleteButton.textContent = 'Delete'
                 li.append(checkbox, span, deleteButton)
-            
+
                 // Append nodes to the movies list
                 this.moviesList.append(li)
             })
-          }
+        }
     }
 
     createElement(tag: keyof HTMLElementTagNameMap, className?: string) {
@@ -173,7 +117,7 @@ class View {
     get _movieText() {
         return this.input.value
     }
-    
+
     _resetInput() {
         this.input.value = ''
     }
@@ -181,70 +125,33 @@ class View {
     bindAddMovie(handler: (title: string) => void) {
         this.form.addEventListener('submit', event => {
             event.preventDefault()
-      
+
             if (this._movieText) {
                 handler(this._movieText)
                 this._resetInput()
             }
         })
     }
-      
+
     bindDeleteMovie(handler: (id: number) => void) {
         this.moviesList.addEventListener('click', (event: any) => {
             if (event.target.className === 'delete') {
                 const id = parseInt(event.target.parentElement.id)
-                
+
                 handler(id)
             }
         })
     }
-      
+
     bindToggleMovie(handler: (id: number) => void) {
         this.moviesList.addEventListener('change', (event: any) => {
             if (event.target.type === 'checkbox') {
                 const id = parseInt(event.target.parentElement.id)
-        
+
                 handler(id)
             }
         })
     }
 }
-  
-class Controller {
-    model: Model
-    view: View
-    constructor(model: Model, view: View) {
-        this.model = model
-        this.view = view
-        // Display initial movies
-        this.onMovieListChanged(this.model.movies)
 
-        this.view.bindAddMovie(this.handleAddMovie)
-        this.view.bindDeleteMovie(this.handleDeleteMovie)
-        this.view.bindToggleMovie(this.handleToggleMovie)
-        this.view.bindEditMovie(this.handleEditMovie)
-        this.model.bindMovieListChanged(this.onMovieListChanged)
-    }
-
-    onMovieListChanged = (movies: Movie[]) => {
-        this.view.displayMovies(movies)
-    }
-
-    handleAddMovie = (movieTitle: string) => {
-        this.model.addMovie(movieTitle)
-    }
-      
-    handleEditMovie = (id: number, movieTitle: string) => {
-        this.model.editMovie(id, movieTitle)
-    }
-      
-    handleDeleteMovie = (id: number) => {
-        this.model.deleteMovie(id)
-    }
-      
-    handleToggleMovie = (id: number) => {
-        this.model.toggleMovie(id)
-    }
-}
-
-const app = new Controller(new Model(), new View())
+export default View

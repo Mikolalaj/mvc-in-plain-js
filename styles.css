@@ -9,7 +9,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #fafafa;
     font-family: 'Dosis', sans-serif;
 }
 
@@ -83,7 +82,7 @@ li {
 }
 
 .delete {
-    background-color: #fafafa;
+    background-color: #ffffff;
     border-width: 1px;
     border-style: solid;
     border-color: #79459c;
