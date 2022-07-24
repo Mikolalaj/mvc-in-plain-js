@@ -1,19 +1,19 @@
 import { Movie } from './utils'
 
 class View {
-    app: Element
-    title: Element
+    app: HTMLDivElement
+    title: HTMLHeadingElement
     form: HTMLFormElement
     input: HTMLInputElement
     submitButton: HTMLButtonElement
     moviesList: HTMLUListElement
-    private _temporaryMovieTitle: string
+    private temporaryMovieTitle: string
 
     constructor() {
-        this.app = this.getElement('#root')
+        this.app = this.getElement('#root') as HTMLDivElement
 
-        this.title = this.createElement('h1')
-        this.title.textContent = 'Movie list'
+        this.title = this.createElement('h1') as HTMLHeadingElement
+        this.title.textContent = 'Movies watchlist'
 
         this.form = this.createElement('form') as HTMLFormElement
 
@@ -31,14 +31,27 @@ class View {
 
         this.app.append(this.title, this.form, this.moviesList)
 
-        this._initLocalListeners()
+        this.initLocalListeners()
+    }
+
+    createElement(tag: keyof HTMLElementTagNameMap, className?: string) {
+        const element = document.createElement(tag)
+        if (className) element.classList.add(className)
+
+        return element
+    }
+
+    getElement(selector: string): Element {
+        const element = document.querySelector(selector)
+
+        return element as Element
     }
 
     // Update temporary state
-    private _initLocalListeners() {
+    private initLocalListeners() {
         this.moviesList.addEventListener('input', (event: any) => {
             if (event.target.className === 'editable') {
-                this._temporaryMovieTitle = event.target.innerText
+                this.temporaryMovieTitle = event.target.innerText
             }
         })
     }
@@ -46,16 +59,17 @@ class View {
     // Send the completed value to the model
     bindEditMovie(handler: (id: number, title: string) => void) {
         this.moviesList.addEventListener('focusout', (event: any) => {
-            if (this._temporaryMovieTitle) {
+            if (this.temporaryMovieTitle) {
                 const id = parseInt(event.target.parentElement.id)
 
-                handler(id, this._temporaryMovieTitle)
-                this._temporaryMovieTitle = ''
+                handler(id, this.temporaryMovieTitle)
+                this.temporaryMovieTitle = ''
             }
         })
     }
 
     displayMovies(movies: Movie[]) {
+        // Clear the list
         while (this.moviesList.firstChild) {
             this.moviesList.removeChild(this.moviesList.firstChild)
         }
@@ -101,24 +115,11 @@ class View {
         }
     }
 
-    createElement(tag: keyof HTMLElementTagNameMap, className?: string) {
-        const element = document.createElement(tag)
-        if (className) element.classList.add(className)
-
-        return element
-    }
-
-    getElement(selector: string): Element {
-        const element = document.querySelector(selector)
-
-        return element as Element
-    }
-
-    get _movieText() {
+    private get movieText() {
         return this.input.value
     }
 
-    _resetInput() {
+    private resetInput() {
         this.input.value = ''
     }
 
@@ -126,9 +127,9 @@ class View {
         this.form.addEventListener('submit', event => {
             event.preventDefault()
 
-            if (this._movieText) {
-                handler(this._movieText)
-                this._resetInput()
+            if (this.movieText) {
+                handler(this.movieText)
+                this.resetInput()
             }
         })
     }

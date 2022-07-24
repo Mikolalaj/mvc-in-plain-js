@@ -3,11 +3,12 @@ import { Movie } from './utils'
 class Model {
     movies: Movie[]
     onMovieListChanged: (movies: Movie[]) => void
+
     constructor() {
         this.movies = JSON.parse(localStorage.getItem('movies')) || []
     }
 
-    _commit(movies: Movie[]) {
+    private commit(movies: Movie[]) {
         this.onMovieListChanged(movies)
         localStorage.setItem('movies', JSON.stringify(movies))
     }
@@ -22,25 +23,25 @@ class Model {
 
         this.movies.push(newMovie)
 
-        this._commit(this.movies)
+        this.commit(this.movies)
     }
 
     editMovie(id: number, title: string) {
         this.movies = this.movies.map(movie => (movie.id === id ? { ...movie, title: title } : movie))
 
-        this._commit(this.movies)
+        this.commit(this.movies)
     }
 
     deleteMovie(id: number) {
         this.movies = this.movies.filter(movie => movie.id !== id)
 
-        this._commit(this.movies)
+        this.commit(this.movies)
     }
 
     toggleMovie(id: number) {
         this.movies = this.movies.map(movie => (movie.id === id ? { ...movie, watched: !movie.watched } : movie))
 
-        this._commit(this.movies)
+        this.commit(this.movies)
     }
 
     bindMovieListChanged(callback: (movies: Movie[]) => void) {
